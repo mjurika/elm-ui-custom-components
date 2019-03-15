@@ -1,13 +1,19 @@
 module CustomElement.DropdownButton exposing
     ( dropdownButton
     , dropdownTitle
+    , Item
     )
 
 import Html exposing (Attribute, Html)
 import Html.Attributes exposing (property)
-import Json.Decode as JD exposing (Decoder)
-import Json.Encode as JE exposing (Value)
+import Json.Decode as Decode exposing (Decoder)
+import Json.Encode as Encode exposing (Value)
 
+
+type alias Item =
+    { name : String
+    , action : String
+    }
 
 {-| Create a dropdownButton Html element.
 -}
@@ -16,9 +22,13 @@ dropdownButton =
     Html.node "dropdown-button"
 
 
-{-| This is how you set the contents of the code editor.
--}
 dropdownTitle : String -> Attribute msg
 dropdownTitle title =
     property "dropdownTitle" <|
-        JE.string title
+        Encode.string title
+
+
+-- dropdownItems : List Item -> Attribute msg
+-- dropdownItems items =
+--     property "dropdownItems" <|
+--         Encode.list items

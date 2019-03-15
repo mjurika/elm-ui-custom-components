@@ -2,7 +2,8 @@ module Main exposing (main)
 
 import Browser
 import Browser.Dom as Dom
-import CustomElement.DropdownButton as DropdownButton
+-- import CustomElement.DropdownButton as DropdownButton
+import CustomElement.DropdownButton as DropdownButton exposing (Item)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
@@ -17,7 +18,8 @@ main =
 
 
 type alias Model =
-    { title : String
+    { title : String,
+      items : List Item
     }
 
 
@@ -27,8 +29,11 @@ type Msg
 
 init : () -> ( Model, Cmd Msg )
 init () =
-    ( { title =
-            "Title from Elm"
+    ( { title = "Title from Elm"
+      , items = [{
+          name = "one"
+        , action = "on_oneClick"
+        }]
       }
     , Cmd.none
     )

@@ -4,19 +4,18 @@
 
     constructor() {
       super();
-      this._title = "Default title";
-      this._item = "ONE";
+      this._title = null;
+      this._dropdownItems = [];
 
-      this._html = 
-        (title, item) => 
-          `<a class="dropdown-trigger btn" href="#" data-target="dropdown1">${title}</a>
-          <ul id="dropdown1" class="dropdown-content">
-            <li><a href="#!">${item}</a></li>
-            <li><a href="#!">two</a></li>
-            <li><a href="#!">three</a></li>
-            <li><a href="#!"><i class="material-icons">view_module</i>four</a></li>
-            <li><a href="#!"><i class="material-icons">cloud</i>five</a></li>
+      this._wrapperHtml =
+        (title, items) =>
+          `<a class="dropdown-trigger btn" href="#" data-target="${title}">${title}</a>
+          <ul id="${title}" class="dropdown-content">
+            ${items}
           </ul>`;
+      this._itemHtml =
+        (title, action) =>
+          `<li><a href="#!" onClick="action('${action}')">${title}</a></li>`;
     }
 
     get dropdownTitle() {
@@ -27,9 +26,29 @@
       this._title = value;
     }
 
+    get dropdownItems() {
+      let itemsHtml = "";
+      this._dropdownItems.forEach(function (item) {
+        itemsHtml += this._itemHtml(item.title, item.action);
+      }, this);
+      return itemsHtml;
+    }
+
+    set dropdownItems(value) {
+      this._dropdownItems = JSON.parse(value);
+    }
+
     connectedCallback() {
-      this.innerHTML =this._html(this._title, this._item);
+      this.innerHTML = this._wrapperHtml(this.dropdownTitle, this.dropdownItems);
       this._instance = M.Dropdown.init(this.querySelector('.dropdown-trigger'), {});
+
+      window.action = function (action) {
+        function dispatch() {
+          this.dispatchEvent(new CustomEvent(action));
+        }
+        // Need to delay or Elm doesn't call view.
+        window.setTimeout(dispatch, 1);
+      };
     }
   })
 })();

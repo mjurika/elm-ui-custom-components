@@ -21,11 +21,13 @@ main =
 type alias Model =
     { title : String
     , items : List Item
+    , action : String
     }
 
 
 type Msg
     = Noop
+    | OnClick String
 
 
 init : () -> ( Model, Cmd Msg )
@@ -33,12 +35,13 @@ init () =
     ( { title = "Title from Elm"
       , items =
             [ { title = "one"
-              , action = "on_oneClick"
+              , action = "btn-one-clicked"
               }
             , { title = "two"
-              , action = "on_twoClick"
+              , action = "btn-two-clicked"
               }
             ]
+      , action = "None"
       }
     , Cmd.none
     )
@@ -50,6 +53,11 @@ update msg model =
         Noop ->
             ( model, Cmd.none )
 
+        OnClick action ->
+            ( { model | action = action }
+            , Cmd.none
+            )
+
 
 view : Model -> Html Msg
 view model =
@@ -59,6 +67,9 @@ view model =
         , DropdownButton.dropdownButton
             [ DropdownButton.dropdownTitle model.title
             , DropdownButton.dropdownItems model.items
+            , DropdownButton.onClick OnClick
             ]
             []
+        , div []
+            [ text model.action ]
         ]

@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser
 import Browser.Dom as Dom
 import CustomElement.DropdownButton as DropdownButton exposing (Item)
+import CustomElement.MapView as MapView exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
@@ -35,14 +36,14 @@ init : () -> ( Model, Cmd Msg )
 init () =
     ( { title = "Title from Elm"
       , items =
-            [ { title = "one"
-              , action = "btn-one-clicked"
+            [ { title = "Streets"
+              , action = "streets"
               }
-            , { title = "two"
-              , action = "btn-two-clicked"
+            , { title = "Satellite"
+              , action = "satellite"
               }
             ]
-      , action = "None"
+      , action = "streets"
       }
     , Cmd.none
     )
@@ -86,4 +87,8 @@ view model =
             []
         , div []
             [ text model.action ]
+        , MapView.mapView
+            [ MapView.baseMap model.action
+            ]
+            []
         ]

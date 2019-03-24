@@ -43,7 +43,7 @@
     }
 
     set dropdownItems(value) {
-      this._dropdownItems = JSON.parse(value);
+      this._dropdownItems = value;
     }
 
     get action() {

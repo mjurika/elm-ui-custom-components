@@ -1,12 +1,14 @@
 module Main exposing (main)
 
--- import CustomElement.DropdownButton as DropdownButton
-
 import Browser
 import Browser.Dom as Dom
 import CustomElement.DropdownButton as DropdownButton exposing (Item)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+
+
+
+-- MAIN
 
 
 main =
@@ -18,16 +20,15 @@ main =
         }
 
 
+
+-- MODEL
+
+
 type alias Model =
     { title : String
     , items : List Item
     , action : String
     }
-
-
-type Msg
-    = Noop
-    | OnClick String
 
 
 init : () -> ( Model, Cmd Msg )
@@ -47,6 +48,15 @@ init () =
     )
 
 
+
+-- UPDATE
+
+
+type Msg
+    = Noop
+    | OnClick String
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -57,6 +67,10 @@ update msg model =
             ( { model | action = action }
             , Cmd.none
             )
+
+
+
+-- VIEW
 
 
 view : Model -> Html Msg

@@ -4,10 +4,10 @@ customElements.define('geo-location', class extends HTMLElement {
 
     constructor() {
         super();
-        
+
         this._triggerPosition = null;
         this._latitude = null;
-        this._longtitude = null;
+        this._longitude = null;
     }
 
     /* #endregion [Constructor] */
@@ -23,12 +23,12 @@ customElements.define('geo-location', class extends HTMLElement {
         this._latitude = value;
     }
 
-    get longtitude() {
-        return this._longtitude;
+    get longitude() {
+        return this._longitude;
     }
 
-    set longtitude(value) {
-        this._longtitude = value;
+    set longitude(value) {
+        this._longitude = value;
     }
 
     get triggerPosition() {
@@ -36,28 +36,29 @@ customElements.define('geo-location', class extends HTMLElement {
     }
 
     set triggerPosition(value) {
-        debugger;
         // Don't trigger on first set.
         var doit = this._triggerPosition !== null;
         this._triggerPosition = value;
         if (doit) {
             var that = this;
-            function dispatch() {
-                that.dispatchEvent(new CustomEvent('position'));
-            }
-            // Need to delay or Elm doesn't call view.
-            window.setTimeout(dispatch, 1);        
+            navigator.geolocation.getCurrentPosition(function (position) {
+                that._latitude = position.coords.latitude,
+                    that._longitude = position.coords.longitude
+
+                function dispatch() {
+                    that.dispatchEvent(new CustomEvent('position'));
+                }
+                // Need to delay or Elm doesn't call view.
+                window.setTimeout(dispatch, 1);
+            });
         }
     }
 
     get position() {
-        debugger;
-        navigator.geolocation.getCurrentPosition(function(position) {
-            return { 
-                latitude: position.coords.latitude,
-                longtitude: position.coords.longtitude
-            }
-        });
+        return {
+            latitude: this.latitude,
+            longitude: this.longitude
+        }
     }
 
     /* #endregion [Properties] */
@@ -71,12 +72,7 @@ customElements.define('geo-location', class extends HTMLElement {
     /* #region [Callback] */
 
     connectedCallback() {
-        debugger;
-        if ("geolocation" in navigator) {
-            /* geolocation is available */
-        } else {
-            /* geolocation IS NOT available */
-        }
+
     }
 
     /* #endregion [Callback] */

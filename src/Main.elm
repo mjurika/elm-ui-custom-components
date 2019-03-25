@@ -3,8 +3,8 @@ module Main exposing (main)
 import Browser
 import Browser.Dom as Dom
 import CustomElement.DropdownButton as DropdownButton exposing (Item)
-import CustomElement.MapView as MapView exposing (..)
 import CustomElement.GeoLocation as GeoLocation exposing (Position)
+import CustomElement.MapView as MapView exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -46,7 +46,7 @@ init () =
             , { title = "Satellite"
               , baseMap = "satellite"
               }
-              , { title = "Hybrid"
+            , { title = "Hybrid"
               , baseMap = "hybrid"
               }
             ]
@@ -66,6 +66,7 @@ type Msg
     = Noop
     | OnClick String
     | TriggerPosition
+    | Position Position
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -78,9 +79,14 @@ update msg model =
             ( { model | baseMap = baseMap }
             , Cmd.none
             )
-        
+
         TriggerPosition ->
             ( { model | triggerPosition = model.triggerPosition + 1 }
+            , Cmd.none
+            )
+
+        Position value ->
+            ( { model | position = Just value }
             , Cmd.none
             )
 
@@ -92,8 +98,12 @@ positionToString position =
             "Ziadna pozicia"
 
         Just p ->
-            "Lat: " ++ String.fromFloat p.latitude ++ 
-            ", Long: " ++ String.fromFloat p.longtitude
+            "Lat: "
+                ++ String.fromFloat p.latitude
+                ++ ", Long: "
+                ++ String.fromFloat p.longitude
+
+
 
 -- VIEW
 
@@ -110,21 +120,22 @@ view model =
             ]
             []
         , div []
-            [ span [] 
+            [ span []
                 [ text "Selected basemap: " ]
-            , strong [] 
+            , strong []
                 [ text model.baseMap ]
             ]
         , button [ onClick TriggerPosition ]
             [ text "Trigger Coordinates" ]
-        , GeoLocation.geoLocation 
+        , GeoLocation.geoLocation
             [ GeoLocation.triggerPosition model.triggerPosition
-            , GeoLocation.onPosition Position ] 
+            , GeoLocation.onPosition Position
+            ]
             []
         , div []
-            [ span [] 
+            [ span []
                 [ text "position: " ]
-            , strong [] 
+            , strong []
                 [ text <| positionToString model.position ]
             ]
         , MapView.mapView

@@ -1,8 +1,8 @@
 module CustomElement.GeoLocation exposing
     ( Position
-    , triggerPosition
-    , onPosition
     , geoLocation
+    , onPosition
+    , triggerPosition
     )
 
 import Html exposing (Attribute, Html)
@@ -18,7 +18,7 @@ import Json.Encode as Encode exposing (Value)
 
 type alias Position =
     { latitude : Float
-    , longtitude : Float
+    , longitude : Float
     }
 
 
@@ -35,6 +35,7 @@ geoLocation =
 
 
 -- HTML attributes
+
 
 triggerPosition : Int -> Attribute msg
 triggerPosition value =
@@ -63,4 +64,4 @@ positionDecoderDebug : Value -> Decoder Position
 positionDecoderDebug value =
     Decode.map2 Position
         (Decode.field "latitude" Decode.float)
-        (Decode.field "longtitude" Decode.float)
+        (Decode.field "longitude" Decode.float)

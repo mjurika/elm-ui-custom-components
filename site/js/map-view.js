@@ -1,64 +1,61 @@
+customElements.define('map-view', class extends HTMLElement {
 
-require([
-    "esri/Map",
-    "esri/views/SceneView"
-], function (Map, SceneView) {
-    customElements.define('map-view', class extends HTMLElement {
+    /* #region [Constructor] */
 
-        /* #region [Constructor] */
+    constructor() {
+        super();
 
-        constructor() {
-            super();
-            debugger;
+        this._map = null;
+        this._view = null;
+        this._basemap = null;
+    }
 
-            this._map = null;
-            this._view = null;
-            this._basemap = null;
-        }
-
-        /* #endregion [Constructor] */
+    /* #endregion [Constructor] */
 
 
-        /* #region [Properties] */
+    /* #region [Properties] */
 
-        get baseMap() {
-            return this._basemap;
-        }
+    get baseMap() {
+        return this._basemap;
+    }
 
-        set baseMap(value) {
-            debugger;
-            this._basemap = value;
+    set baseMap(value) {
+        this._basemap = value;
+        if (this._map) {
             this._map.basemap = value;
         }
+    }
 
-        /* #endregion [Properties] */
-
-
-        /* #region [Event handlers] */
-
-        /* #endregion [Event handlers] */
+    /* #endregion [Properties] */
 
 
-        /* #region [Callback] */
+    /* #region [Event handlers] */
 
-        connectedCallback() {
-            this._map = new Map({
-                basemap: this._basemap,
+    /* #endregion [Event handlers] */
+
+
+    /* #region [Callback] */
+
+    connectedCallback() {
+        var that = this;
+
+        // Create map
+        require([
+            "esri/Map",
+            "esri/views/SceneView"
+        ], function (Map, SceneView) {
+            that._map = new Map({
+                basemap: that._basemap,
                 ground: "world-elevation"
             });
-            this._view = new SceneView({
-                container: this,
-                map: this._map,
+            that._view = new SceneView({
+                container: that,
+                map: that._map,
                 center: [19.5, 48.7],
                 zoom: 8
             });
+        });
+    }
 
-            // this._map.basemap = "satellite";
-            // this._map.basemap = "hybrid";
-        }
-
-        /* #endregion [Callback] */
-    })
-});
-
-
+    /* #endregion [Callback] */
+})

@@ -1,5 +1,3 @@
-
-
 customElements.define('dropdown-button', class extends HTMLElement {
 
   /* #region [Constructor] */
@@ -7,7 +5,7 @@ customElements.define('dropdown-button', class extends HTMLElement {
   constructor() {
     super();
     this._title = null;
-    this._action = null;
+    this._baseMap = null;
     this._dropdownItems = [];
 
     this._wrapperHtml =
@@ -17,8 +15,8 @@ customElements.define('dropdown-button', class extends HTMLElement {
             ${items}
           </ul>`;
     this._itemHtml =
-      (title, action) =>
-        `<li><a href="#!" data-click="${action}">${title}</a></li>`;
+      (title, baseMap) =>
+        `<li><a href="#!" data-click="${baseMap}">${title}</a></li>`;
   }
 
   /* #endregion [Constructor] */
@@ -37,7 +35,7 @@ customElements.define('dropdown-button', class extends HTMLElement {
   get dropdownItems() {
     let itemsHtml = "";
     this._dropdownItems.forEach(function (item) {
-      itemsHtml += this._itemHtml(item.title, item.action);
+      itemsHtml += this._itemHtml(item.title, item.baseMap);
     }, this);
     return itemsHtml;
   }
@@ -46,12 +44,12 @@ customElements.define('dropdown-button', class extends HTMLElement {
     this._dropdownItems = value;
   }
 
-  get action() {
-    return this._action;
+  get baseMap() {
+    return this._baseMap;
   }
 
-  set action(value) {
-    this._action = value;
+  set baseMap(value) {
+    this._baseMap = value;
   }
 
   /* #endregion [Properties] */
@@ -61,13 +59,13 @@ customElements.define('dropdown-button', class extends HTMLElement {
 
   /**
    * 
-   * @param {string} action
+   * @param {string} baseMap
    * 
    *  Event handler for button click.
-   *  Sets action property and dispatches event.
+   *  Sets baseMap property and dispatches event.
    */
-  _on_click(action) {
-    this._action = action;
+  _on_click(baseMap) {
+    this._baseMap = baseMap;
     var that = this
     function dispatch() {
       that.dispatchEvent(new CustomEvent("btnClicked"));
@@ -98,5 +96,3 @@ customElements.define('dropdown-button', class extends HTMLElement {
 
   /* #endregion [Callback] */
 })
-
-

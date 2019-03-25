@@ -19,7 +19,7 @@ import Json.Encode as Encode exposing (Value)
 
 type alias Item =
     { title : String
-    , action : String
+    , baseMap : String
     }
 
 
@@ -50,9 +50,9 @@ dropdownItems items =
         encodeItemList items
 
 
-action : String -> Attribute msg
-action value =
-    property "action" <|
+baseMap : String -> Attribute msg
+baseMap value =
+    property "baseMap" <|
         Encode.string value
 
 
@@ -64,7 +64,7 @@ onClick : (String -> msg) -> Attribute msg
 onClick tagger =
     on "btnClicked" <|
         Decode.map tagger <|
-            Decode.at [ "target", "action" ]
+            Decode.at [ "target", "baseMap" ]
                 Decode.string
 
 
@@ -81,7 +81,7 @@ encodeItem : Item -> Encode.Value
 encodeItem item =
     Encode.object
         [ ( "title", Encode.string item.title )
-        , ( "action", Encode.string item.action )
+        , ( "baseMap", Encode.string item.baseMap )
         ]
 
 
@@ -89,10 +89,10 @@ encodeItem item =
 -- dropdownItems : List Item -> Attribute msg
 -- dropdownItems items =
 --     property "dropdownItems" <|
---         Encode.string """[{"title":"one","action":"btn-one-clicked"},{"title":"two","action":"btn-two-clicked"}]"""
--- encodeAction : String -> Encode.Value
--- encodeAction action =
---     Encode.string action
+--         Encode.string """[{"title":"one","baseMap":"btn-one-clicked"},{"title":"two","baseMap":"btn-two-clicked"}]"""
+-- encodebaseMap : String -> Encode.Value
+-- encodebaseMap baseMap =
+--     Encode.string baseMap
 -- encodeTitle : String -> Encode.Value
 -- encodeTitle title =
 --     Encode.string title

@@ -4,8 +4,10 @@ import Browser
 import Browser.Dom as Dom
 import CustomElement.DropdownButton as DropdownButton exposing (Item)
 import CustomElement.MapView as MapView exposing (..)
+import CustomElement.GeoLocation as GeoLocation exposing (Position)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 
 
 
@@ -28,7 +30,9 @@ main =
 type alias Model =
     { title : String
     , items : List Item
-    , action : String
+    , baseMap : String
+    , triggerPosition : Int
+    , position : Maybe Position
     }
 
 
@@ -37,13 +41,18 @@ init () =
     ( { title = "Title from Elm"
       , items =
             [ { title = "Streets"
-              , action = "streets"
+              , baseMap = "streets"
               }
             , { title = "Satellite"
-              , action = "satellite"
+              , baseMap = "satellite"
+              }
+              , { title = "Hybrid"
+              , baseMap = "hybrid"
               }
             ]
-      , action = "streets"
+      , baseMap = "streets"
+      , triggerPosition = 0
+      , position = Nothing
       }
     , Cmd.none
     )
@@ -56,6 +65,7 @@ init () =
 type Msg
     = Noop
     | OnClick String
+    | TriggerPosition
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -64,12 +74,26 @@ update msg model =
         Noop ->
             ( model, Cmd.none )
 
-        OnClick action ->
-            ( { model | action = action }
+        OnClick baseMap ->
+            ( { model | baseMap = baseMap }
+            , Cmd.none
+            )
+        
+        TriggerPosition ->
+            ( { model | triggerPosition = model.triggerPosition + 1 }
             , Cmd.none
             )
 
 
+positionToString : Maybe Position -> String
+positionToString position =
+    case position of
+        Nothing ->
+            "Ziadna pozicia"
+
+        Just p ->
+            "Lat: " ++ String.fromFloat p.latitude ++ 
+            ", Long: " ++ String.fromFloat p.longtitude
 
 -- VIEW
 
@@ -86,9 +110,25 @@ view model =
             ]
             []
         , div []
-            [ text model.action ]
+            [ span [] 
+                [ text "Selected basemap: " ]
+            , strong [] 
+                [ text model.baseMap ]
+            ]
+        , button [ onClick TriggerPosition ]
+            [ text "Trigger Coordinates" ]
+        , GeoLocation.geoLocation 
+            [ GeoLocation.triggerPosition model.triggerPosition
+            , GeoLocation.onPosition Position ] 
+            []
+        , div []
+            [ span [] 
+                [ text "position: " ]
+            , strong [] 
+                [ text <| positionToString model.position ]
+            ]
         , MapView.mapView
-            [ MapView.baseMap model.action
+            [ MapView.baseMap model.baseMap
             ]
             []
         ]

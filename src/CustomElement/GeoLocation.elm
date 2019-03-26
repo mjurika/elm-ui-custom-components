@@ -19,6 +19,7 @@ import Json.Encode as Encode exposing (Value)
 type alias Position =
     { latitude : Float
     , longitude : Float
+    , accuracy : Float
     }
 
 
@@ -62,6 +63,7 @@ positionDecoder =
 
 positionDecoderDebug : Value -> Decoder Position
 positionDecoderDebug value =
-    Decode.map2 Position
+    Decode.map3 Position
         (Decode.field "latitude" Decode.float)
         (Decode.field "longitude" Decode.float)
+        (Decode.field "accuracy" Decode.float)

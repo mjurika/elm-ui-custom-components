@@ -1,6 +1,7 @@
 module CustomElement.MapView exposing
     ( baseMap
     , mapView
+    , position
     )
 
 import Html exposing (Attribute, Html)
@@ -12,6 +13,16 @@ import Json.Encode as Encode exposing (Value)
 
 
 -- ALIAS
+
+
+type alias Position =
+    { latitude : Float
+    , longitude : Float
+    , accuracy : Float
+    }
+
+
+
 -- HTML node
 
 
@@ -30,3 +41,18 @@ baseMap : String -> Attribute msg
 baseMap mapId =
     property "baseMap" <|
         Encode.string mapId
+
+
+position : Maybe Position -> Attribute msg
+position value =
+    property "position" <|
+        case value of
+            Nothing ->
+                Encode.string ""
+
+            Just v ->
+                Encode.object
+                    [ ( "latitude", Encode.float v.latitude )
+                    , ( "longitude", Encode.float v.longitude )
+                    , ( "accuracy", Encode.float v.accuracy )
+                    ]

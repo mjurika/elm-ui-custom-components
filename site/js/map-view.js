@@ -8,6 +8,10 @@ customElements.define('map-view', class extends HTMLElement {
         this._map = null;
         this._view = null;
         this._basemap = null;
+        this._showPosition = null;
+
+        this._outlineGraphic = null;
+        this._graphic = null;
     }
 
     /* #endregion [Constructor] */
@@ -26,12 +30,15 @@ customElements.define('map-view', class extends HTMLElement {
         }
     }
 
+    set position(value) {
+        if (!value) {
+            return;
+        }
+
+        this._showPosition(value);
+    }
+
     /* #endregion [Properties] */
-
-
-    /* #region [Event handlers] */
-
-    /* #endregion [Event handlers] */
 
 
     /* #region [Callback] */
@@ -43,60 +50,110 @@ customElements.define('map-view', class extends HTMLElement {
         require([
             "esri/Map",
             "esri/views/SceneView",
-            "esri/geometry/Point",
             "esri/Graphic",
-            "esri/layers/GraphicsLayer"
-        ], function (Map, SceneView, Point, Graphic, GraphicsLayer) {
+            "esri/geometry/Circle",
+            "esri/geometry/support/jsonUtils",
+        ], function (Map, SceneView, Graphic, Circle, geometryJsonUtils) {
+            // Init map and view
             that._map = new Map({
                 basemap: that._basemap,
                 ground: "world-elevation"
             });
+
             that._view = new SceneView({
                 container: that,
                 map: that._map,
-                center: [19.5, 48.7],
-                zoom: 17
+                camera: {
+                    position: {
+                        latitude: 43.68,
+                        longitude: 19.53,
+                        z: 543500
+                    },
+                    tilt: 45,
+                    heading: 0
+                }
             });
 
-            var graphicsLayer = new GraphicsLayer();
-            that._map.add(graphicsLayer);
 
-            var symbol = {
-                type: "point-3d",  // autocasts as new PointSymbol3D()
-                symbolLayers: [{
-                    type: "object",  // autocasts as new ObjectSymbol3DLayer()
-                    width: 5,    // diameter of the object from east to west in meters
-                    height: 10,  // height of object in meters
-                    depth: 15,   // diameter of the object from north to south in meters
-                    resource: { primitive: "sphere" },
-                    material: { color: "red" }
-                }],
-                verticalOffset: {
-                    screenLength: 40,
-                    maxWorldLength: 100,
-                    minWorldLength: 20
-                },
-                callout: {
-                    type: "line",  // autocasts as new LineCallout3D()
-                    size: 1.5,
-                    color: [150, 150, 150],
-                    border: {
-                        color: [50, 50, 50]
-                    }
+            /**
+             * Sets the scene extent using goTo method.
+             * 
+             * @param {object} extent Scene extent/geometry.
+             */
+            that._setExtent = function (extent) {
+                if (!extent.spatialReference) {
+                    extent.spatialReference = that._view.spatialReference.toJSON();
                 }
+
+                if (!extent.declaredClass) {
+                    extent = geometryJsonUtils.fromJSON(extent);
+                }
+
+                return that._view.goTo({
+                    target: extent
+                });
             };
 
-            var point = new Point({
-                longitude: 19.5,
-                latitude: 48.7
-            });
-            var pointGraphic = new Graphic({
-                geometry: point,
-                symbol: symbol
-            });
-            debugger;
 
-            graphicsLayer.add(pointGraphic);
+            /**
+             * Show location.
+             * 
+             * @param {object} value Gelocation.
+             */
+            that._showPosition = function (value) {
+                var point = {
+                    type: "point",
+                    latitude: value.latitude,
+                    longitude: value.longitude,
+                    spatialReference: {
+                        wkid: 102100
+                    }
+                };
+
+                var location = new Circle({
+                    center: point,
+                    radius: value.accuracy,
+                    geodesic: true,
+                    radiusUnit: "meters"
+                });
+
+                if (that._outlineGraphic && that._graphic) {
+                    that._view.graphics.remove(that._outlineGraphic);
+                    that._view.graphics.remove(that._graphic);
+                }
+
+                that._outlineGraphic = new Graphic({
+                    geometry: location,
+                    symbol: {
+                        type: "simple-fill",
+                        color: [0, 145, 234, 0.12],
+                        outline: {
+                            color: [0, 145, 234],
+                            width: 0.3
+                        }
+                    }
+                });
+
+                that._graphic = new Graphic({
+                    geometry: point,
+                    symbol: {
+                        type: "simple-marker",
+                        style: "circle",
+                        color: [0, 145, 234],
+                        size: 8,
+                        outline: {
+                            type: "simple-line",
+                            color: [255, 255, 255],
+                            width: 1.3
+                        }
+                    }
+                });
+
+                that._view.graphics.add(that._outlineGraphic);
+                that._view.graphics.add(that._graphic);
+
+                that._setExtent(that._outlineGraphic);
+            };
         });
     }
 

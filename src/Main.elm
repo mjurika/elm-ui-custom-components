@@ -38,7 +38,7 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init () =
-    ( { title = "Title from Elm"
+    ( { title = "Basemaps"
       , items =
             [ { title = "Streets"
               , baseMap = "streets"
@@ -50,7 +50,7 @@ init () =
               , baseMap = "hybrid"
               }
             ]
-      , baseMap = "streets"
+      , baseMap = "satellite"
       , triggerPosition = 0
       , position = Nothing
       }
@@ -102,6 +102,8 @@ positionToString position =
                 ++ String.fromFloat p.latitude
                 ++ ", Long: "
                 ++ String.fromFloat p.longitude
+                ++ ", Acc: "
+                ++ String.fromFloat p.accuracy
 
 
 
@@ -111,9 +113,7 @@ positionToString position =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text "UI custom components" ]
-        , h2 [] [ text "Dropdown button" ]
-        , DropdownButton.dropdownButton
+        [ DropdownButton.dropdownButton
             [ DropdownButton.dropdownTitle model.title
             , DropdownButton.dropdownItems model.items
             , DropdownButton.onClick OnClick
@@ -125,8 +125,11 @@ view model =
             , strong []
                 [ text model.baseMap ]
             ]
-        , button [ onClick TriggerPosition ]
-            [ text "Trigger Coordinates" ]
+        , button
+            [ class "btn"
+            , onClick TriggerPosition
+            ]
+            [ text "Show my position" ]
         , GeoLocation.geoLocation
             [ GeoLocation.triggerPosition model.triggerPosition
             , GeoLocation.onPosition Position
@@ -140,6 +143,7 @@ view model =
             ]
         , MapView.mapView
             [ MapView.baseMap model.baseMap
+            , MapView.position model.position
             ]
             []
         ]

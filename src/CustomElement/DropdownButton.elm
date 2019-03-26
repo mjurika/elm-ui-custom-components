@@ -83,16 +83,3 @@ encodeItem item =
         [ ( "title", Encode.string item.title )
         , ( "baseMap", Encode.string item.baseMap )
         ]
-
-
-
--- dropdownItems : List Item -> Attribute msg
--- dropdownItems items =
---     property "dropdownItems" <|
---         Encode.string """[{"title":"one","baseMap":"btn-one-clicked"},{"title":"two","baseMap":"btn-two-clicked"}]"""
--- encodebaseMap : String -> Encode.Value
--- encodebaseMap baseMap =
---     Encode.string baseMap
--- encodeTitle : String -> Encode.Value
--- encodeTitle title =
---     Encode.string title

@@ -38,7 +38,7 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init () =
-    ( { title = "Basemaps"
+    ( { title = "Change basemaps"
       , items =
             [ { title = "Streets"
               , baseMap = "streets"
@@ -112,8 +112,12 @@ positionToString position =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ DropdownButton.dropdownButton
+    div [ class "row" ]
+    [ div [ class "col s2" ]
+        [ h4 []
+            [ text "Elm custom elements"
+            ]
+        , DropdownButton.dropdownButton
             [ DropdownButton.dropdownTitle model.title
             , DropdownButton.dropdownItems model.items
             , DropdownButton.onClick OnClick
@@ -125,6 +129,7 @@ view model =
             , strong []
                 [ text model.baseMap ]
             ]
+        , br [] []
         , button
             [ class "btn"
             , onClick TriggerPosition
@@ -141,9 +146,12 @@ view model =
             , strong []
                 [ text <| positionToString model.position ]
             ]
-        , MapView.mapView
+        ]
+    , div [ class "col s10" ]
+        [ MapView.mapView
             [ MapView.baseMap model.baseMap
             , MapView.position model.position
             ]
             []
         ]
+    ]

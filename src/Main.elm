@@ -5,6 +5,7 @@ import Browser.Dom as Dom
 import CustomElement.DropdownButton as DropdownButton exposing (Item)
 import CustomElement.GeoLocation as GeoLocation exposing (Position)
 import CustomElement.MapView as MapView exposing (..)
+import CustomElement.AutoComplete as AutoComplete exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -37,6 +38,8 @@ type alias Model =
     , position : Maybe Position
     , inputText : String
     , status : Status
+    , autoCompleteLabel : String
+    , value : String
     }
 
 
@@ -44,12 +47,6 @@ type Status
     = Failure
     | Loading
     | Success (List SuggestResult)
-
-
-type alias SuggestResult =
-    { magicKey : String
-    , text : String
-    }
 
 
 init : () -> ( Model, Cmd Msg )
@@ -71,6 +68,8 @@ init () =
       , position = Nothing
       , inputText = "bra"
       , status = Loading
+      , autoCompleteLabel = "Search in map"
+      , value = ""
       }
     , Cmd.none
     )
@@ -87,6 +86,7 @@ type Msg
     | Position Position
     | Search
     | GotResult (Result Http.Error (List SuggestResult))
+    | OnInput String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -126,6 +126,15 @@ update msg model =
                     ( { model | status = Failure }
                     , Cmd.none
                     )
+
+        -- OnInput val ->
+        --     ( { model | status = Loading }
+        --     , suggest val
+        --     )
+        OnInput val ->
+            ( { model | value = val }
+            , Cmd.none
+            )
 
 
 positionToString : Maybe Position -> String
@@ -188,6 +197,21 @@ view model =
                 , viewResponse model.status
                 ]
             , button [ onClick Search ] [ text "Hladat" ]
+            , AutoComplete.autoComplete
+                [ AutoComplete.label model.autoCompleteLabel
+                , AutoComplete.value model.value
+                , AutoComplete.onInput OnInput
+                , case model.status of
+                    Failure ->
+                        class "fail"
+
+                    Loading ->
+                        class "loading"
+
+                    Success response ->
+                        AutoComplete.data response
+                ]
+                []
             ]
         , div [ class "col s10" ]
             [ MapView.mapView

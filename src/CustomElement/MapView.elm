@@ -5,6 +5,7 @@ module CustomElement.MapView exposing
     , baseMap
     , geometry
     , mapView
+    , measurement
     , position
     )
 
@@ -65,6 +66,12 @@ baseMap : String -> Attribute msg
 baseMap mapId =
     property "baseMap" <|
         Encode.string mapId
+
+
+measurement : String -> Attribute msg
+measurement measurementType =
+    property "measurement" <|
+        Encode.string measurementType
 
 
 position : Maybe Position -> Attribute msg

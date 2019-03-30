@@ -40,6 +40,7 @@ type alias Model =
     , autoCompleteLabel : String
     , value : String
     , geometryStatus : GeometryStatus
+    , measureType : String
     }
 
 
@@ -68,6 +69,9 @@ init () =
             , { title = "Satellite"
               , baseMap = "satellite"
               }
+            , { title = "Topographic"
+              , baseMap = "topo"
+              }
             ]
       , baseMap = "hybrid"
       , triggerPosition = 0
@@ -76,6 +80,7 @@ init () =
       , autoCompleteLabel = "Search in map"
       , value = ""
       , geometryStatus = LoadingGeom
+      , measureType = "none"
       }
     , Cmd.none
     )
@@ -94,6 +99,9 @@ type Msg
     | OnInput String
     | OnAutocomplete String
     | GotGeometry (Result Http.Error (List Geometry))
+    | MeasureDistance
+    | MeasureArea
+    | MeasureNone
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -150,6 +158,21 @@ update msg model =
                     ( { model | geometryStatus = FailGeom }
                     , Cmd.none
                     )
+
+        MeasureDistance ->
+            ( { model | measureType = "distance" }
+            , Cmd.none
+            )
+
+        MeasureArea ->
+            ( { model | measureType = "area" }
+            , Cmd.none
+            )
+
+        MeasureNone ->
+            ( { model | measureType = "none" }
+            , Cmd.none
+            )
 
 
 positionToString : Maybe Position -> String
@@ -228,11 +251,47 @@ view model =
                         [ text <| positionToString model.position ]
                     ]
                 ]
+            , div []
+                [ div []
+                    [ span [ class "label" ]
+                        [ text "Meranie" ]
+                    ]
+                , div [ class model.measureType ]
+                    [ button
+                        [ class "btn btn-flat"
+                        , id "distance"
+                        , title "Measure distance between two points"
+                        , onClick MeasureDistance
+                        ]
+                        [ i [ class "material-icons" ]
+                            [ text "remove" ]
+                        ]
+                    , button
+                        [ class "btn btn-flat"
+                        , id "area"
+                        , title "Measure area"
+                        , onClick MeasureArea
+                        ]
+                        [ i [ class "material-icons" ]
+                            [ text "details" ]
+                        ]
+                    , button
+                        [ class "btn btn-flat"
+                        , id "none"
+                        , title "Close measurement"
+                        , onClick MeasureNone
+                        ]
+                        [ i [ class "material-icons" ]
+                            [ text "close" ]
+                        ]
+                    ]
+                ]
             ]
         , div [ class "map-container" ]
             [ MapView.mapView
                 [ MapView.baseMap model.baseMap
                 , MapView.position model.position
+                , MapView.measurement model.measureType
                 , case model.geometryStatus of
                     FailGeom ->
                         id "error"

@@ -28,8 +28,8 @@
     map-view {
       padding: 0;
       margin: 0;
-      height: 100%;
-      width: 100%;
+      height: calc(100vh - 84px);
+      width: 100vw;
     }
 
     main {
@@ -49,6 +49,25 @@
 
     .map-container {
       flex: 1;
+    }
+
+    .distance #distance,
+    .area #area,
+    .none #none {
+      color: #26a69a;
+    }
+
+    .btn.btn-flat:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .label {
+      font-size: .8rem;
+      color: #9e9e9e;
+    }
+
+    .input-field {
+      width: 20rem;
     }
   </style>
 </head>

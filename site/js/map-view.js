@@ -8,10 +8,13 @@ customElements.define('map-view', class extends HTMLElement {
         this._map = null;
         this._view = null;
         this._basemap = null;
+        this._measurement = null;
         this._showPosition = null;
 
         this._outlineGraphic = null;
         this._graphic = null;
+        this._activeWidget = null;
+        this._pointGraphic = null;
     }
 
     /* #endregion [Constructor] */
@@ -30,6 +33,18 @@ customElements.define('map-view', class extends HTMLElement {
         }
     }
 
+    get measurement() {
+        return this._measurement;
+    }
+
+    set measurement(value) {
+        this._measurement = value;
+        if (!this._setActiveWidget) {
+            return;
+        }
+        this._setActiveWidget(value);
+    }
+
     set position(value) {
         if (!value) {
             return;
@@ -42,11 +57,11 @@ customElements.define('map-view', class extends HTMLElement {
         if (!geometry || !this._setExtent) {
             return;
         }
-
         geometry[0].extent.spatialReference = {
             wkid: 4326
         };
         this._setExtent(geometry[0].extent);
+        this._addPointGraphic(geometry[0].location.x, geometry[0].location.y);
     }
 
     /* #endregion [Properties] */
@@ -63,8 +78,11 @@ customElements.define('map-view', class extends HTMLElement {
             "esri/views/SceneView",
             "esri/Graphic",
             "esri/geometry/Circle",
+            "esri/geometry/Point",
             "esri/geometry/support/jsonUtils",
-        ], function (Map, SceneView, Graphic, Circle, geometryJsonUtils) {
+            "esri/widgets/DirectLineMeasurement3D",
+            "esri/widgets/AreaMeasurement3D"
+        ], function (Map, SceneView, Graphic, Circle, Point, geometryJsonUtils, DirectLineMeasurement3D, AreaMeasurement3D) {
             // Init map and view
             that._map = new Map({
                 basemap: that._basemap,
@@ -162,9 +180,78 @@ customElements.define('map-view', class extends HTMLElement {
 
                 that._view.graphics.add(that._outlineGraphic);
                 that._view.graphics.add(that._graphic);
-
                 that._setExtent(that._outlineGraphic);
             };
+
+
+            /**
+             * Adds graphic to mark point.
+             * 
+             * @param {float} longitude Longitude.
+             * @param {float} latitude Latitude.
+             */
+            that._addPointGraphic = function (longitude, latitude) {
+                if (that._pointGraphic) {
+                    that._view.graphics.remove(that._pointGraphic);
+                }
+                that._pointGraphic = new Graphic({
+                    geometry: new Point({
+                        longitude: longitude,
+                        latitude: latitude
+                    }),
+                    symbol: {
+                        type: "simple-marker",
+                        style: "circle",
+                        color: [244, 67, 54],
+                        size: 8,
+                        outline: {
+                            type: "simple-line",
+                            color: [255, 255, 255],
+                            width: 1.3
+                        }
+                    }
+                });
+                that._view.graphics.add(that._pointGraphic);
+            };
+
+            /**
+             * Sets active widget.
+             * 
+             * @param {string} type Type of widget.
+             */
+            that._setActiveWidget = function (type) {
+                if (that._activeWidget) {
+                    that._view.ui.remove(that._activeWidget);
+                    that._activeWidget.destroy();
+                    that._activeWidget = null;
+                }
+
+                switch (type) {
+                    case "distance":
+                        that._activeWidget = new DirectLineMeasurement3D({
+                            view: that._view
+                        });
+
+                        that._activeWidget.viewModel.newMeasurement();
+                        that._view.ui.add(that._activeWidget, "top-right");
+                        break;
+                    case "area":
+                        that._activeWidget = new AreaMeasurement3D({
+                            view: that._view
+                        });
+
+                        that._activeWidget.viewModel.newMeasurement();
+                        that._view.ui.add(that._activeWidget, "top-right");
+                        break;
+                    case "none":
+                        if (that._activeWidget) {
+                            that._view.ui.remove(that._activeWidget);
+                            that._activeWidget.destroy();
+                            that._activeWidget = null;
+                        }
+                        break;
+                }
+            }
         });
     }
 

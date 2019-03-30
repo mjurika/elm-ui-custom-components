@@ -13,12 +13,10 @@ customElements.define('auto-complete', class extends HTMLElement {
 
     this._html =
       (label) =>
-        `<div class="row">
-          <div class="input-field col s12">
-            <i class="material-icons prefix">search</i>
-            <input type="text" id="autocomplete-input" class="autocomplete">
-            <label for="autocomplete-input">${label}</label>
-          </div>
+        `<div class="input-field">
+          <i class="material-icons prefix">search</i>
+          <input type="text" id="autocomplete-input" class="autocomplete">
+          <label for="autocomplete-input">${label}</label>
         </div>`;
 
     this.debounced = function (delay, fn) {

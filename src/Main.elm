@@ -36,7 +36,6 @@ type alias Model =
     , baseMap : String
     , triggerPosition : Int
     , position : Maybe Position
-    , inputText : String
     , status : Status
     , autoCompleteLabel : String
     , value : String
@@ -58,22 +57,21 @@ type GeometryStatus
 
 init : () -> ( Model, Cmd Msg )
 init () =
-    ( { title = "Change basemaps"
+    ( { title = "Change basemap"
       , items =
-            [ { title = "Streets"
+            [ { title = "Hybrid"
+              , baseMap = "hybrid"
+              }
+            , { title = "Streets"
               , baseMap = "streets"
               }
             , { title = "Satellite"
               , baseMap = "satellite"
               }
-            , { title = "Hybrid"
-              , baseMap = "hybrid"
-              }
             ]
-      , baseMap = "satellite"
+      , baseMap = "hybrid"
       , triggerPosition = 0
       , position = Nothing
-      , inputText = "bra"
       , status = Loading
       , autoCompleteLabel = "Search in map"
       , value = ""
@@ -92,7 +90,6 @@ type Msg
     | OnClick String
     | TriggerPosition
     | Position Position
-    | Search
     | GotResult (Result Http.Error (List SuggestResult))
     | OnInput String
     | OnAutocomplete String
@@ -118,11 +115,6 @@ update msg model =
         Position value ->
             ( { model | position = Just value }
             , Cmd.none
-            )
-
-        Search ->
-            ( { model | status = Loading }
-            , suggest model.inputText
             )
 
         GotResult result ->
@@ -164,7 +156,7 @@ positionToString : Maybe Position -> String
 positionToString position =
     case position of
         Nothing ->
-            "Ziadna pozicia"
+            "Unkown"
 
         Just p ->
             "Lat: "
@@ -181,63 +173,63 @@ positionToString position =
 
 view : Model -> Html Msg
 view model =
-    div [ class "row" ]
-        [ div [ class "col s2" ]
-            [ h4 []
-                [ text "Elm custom elements"
-                ]
-            , DropdownButton.dropdownButton
-                [ DropdownButton.dropdownTitle model.title
-                , DropdownButton.dropdownItems model.items
-                , DropdownButton.onClick OnClick
-                ]
-                []
-            , div []
-                [ span []
-                    [ text "Selected basemap: " ]
-                , strong []
-                    [ text model.baseMap ]
-                ]
-            , br [] []
-            , button
-                [ class "btn"
-                , onClick TriggerPosition
-                ]
-                [ text "Show my position" ]
-            , GeoLocation.geoLocation
-                [ GeoLocation.triggerPosition model.triggerPosition
-                , GeoLocation.onPosition Position
-                ]
-                []
-            , div []
-                [ span []
-                    [ text "position: " ]
-                , strong []
-                    [ text <| positionToString model.position ]
-                ]
-            , div []
-                [ h2 [] [ text "Hladat" ]
-                , viewResponse model.status
-                ]
-            , button [ onClick Search ] [ text "Hladat" ]
-            , AutoComplete.autoComplete
-                [ AutoComplete.label model.autoCompleteLabel
-                , AutoComplete.value model.value
-                , AutoComplete.onInput OnInput
-                , AutoComplete.onAutocomplete OnAutocomplete
-                , case model.status of
-                    Failure ->
-                        class "fail"
+    main_ []
+        [ div [ class "top-bar" ]
+            [ div []
+                [ AutoComplete.autoComplete
+                    [ AutoComplete.label model.autoCompleteLabel
+                    , AutoComplete.value model.value
+                    , AutoComplete.onInput OnInput
+                    , AutoComplete.onAutocomplete OnAutocomplete
+                    , case model.status of
+                        Failure ->
+                            class "fail"
 
-                    Loading ->
-                        class "loading"
+                        Loading ->
+                            class "loading"
 
-                    Success response ->
-                        AutoComplete.data response
+                        Success response ->
+                            AutoComplete.data response
+                    ]
+                    []
                 ]
-                []
+            , div []
+                [ DropdownButton.dropdownButton
+                    [ DropdownButton.dropdownTitle model.title
+                    , DropdownButton.dropdownItems model.items
+                    , DropdownButton.onClick OnClick
+                    ]
+                    []
+                , div []
+                    [ span []
+                        [ text "Selected: " ]
+                    , strong []
+                        [ text model.baseMap ]
+                    ]
+                ]
+            , div []
+                [ button
+                    [ class "btn"
+                    , onClick TriggerPosition
+                    ]
+                    [ text "Show my location"
+                    , i [ class "material-icons left" ]
+                        [ text "my_location" ]
+                    ]
+                , GeoLocation.geoLocation
+                    [ GeoLocation.triggerPosition model.triggerPosition
+                    , GeoLocation.onPosition Position
+                    ]
+                    []
+                , div []
+                    [ span []
+                        [ text "Your location: " ]
+                    , strong []
+                        [ text <| positionToString model.position ]
+                    ]
+                ]
             ]
-        , div [ class "col s10" ]
+        , div [ class "map-container" ]
             [ MapView.mapView
                 [ MapView.baseMap model.baseMap
                 , MapView.position model.position
@@ -289,10 +281,6 @@ getGeometry key =
         { url = "http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&magicKey=" ++ key
         , expect = Http.expectJson GotGeometry geometryListDecoder
         }
-
-
-
--- https://developers.arcgis.com/rest/geocode/api-reference/geocoding-suggest.htm
 
 
 suggestListDecoder : Decoder (List SuggestResult)

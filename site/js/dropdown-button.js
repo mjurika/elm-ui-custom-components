@@ -10,7 +10,7 @@ customElements.define('dropdown-button', class extends HTMLElement {
 
     this._wrapperHtml =
       (title, items) =>
-        `<a class="dropdown-trigger btn" href="#" data-target="${title}">${title}</a>
+        `<a class="dropdown-trigger btn" href="#" data-target="${title}"><i class="material-icons left">map</i>${title}</a>
           <ul id="${title}" class="dropdown-content">
             ${items}
           </ul>`;

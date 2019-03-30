@@ -54,6 +54,7 @@ customElements.define('auto-complete', class extends HTMLElement {
     }
 
     this._autocomplete.updateData(update);
+    this._autocomplete.open();
   }
 
   get label() {

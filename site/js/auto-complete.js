@@ -8,6 +8,8 @@ customElements.define('auto-complete', class extends HTMLElement {
     this._data = null;
     this._label = null;
     this._value = null;
+    this._magicKey = null;
+    this._inputNode = null;
 
     this._html =
       (label) =>
@@ -18,6 +20,19 @@ customElements.define('auto-complete', class extends HTMLElement {
             <label for="autocomplete-input">${label}</label>
           </div>
         </div>`;
+
+    this.debounced = function (delay, fn) {
+      let timerId;
+      return function (...args) {
+        if (timerId) {
+          clearTimeout(timerId);
+        }
+        timerId = setTimeout(() => {
+          fn(...args);
+          timerId = null;
+        }, delay);
+      }
+    }
   }
 
   /* #endregion [Constructor] */
@@ -31,16 +46,16 @@ customElements.define('auto-complete', class extends HTMLElement {
 
   set data(value) {
     this._data = value;
-    if (!value) {
+    if (!value || value.length < 0) {
       return;
     }
+
     var update = {}
     for (var i = 0, len = value.length; i < len; i++) {
       update[value[i].text] = null;
     }
-    
+
     this._autocomplete.updateData(update);
-    this._autocomplete.open();
   }
 
   get label() {
@@ -59,6 +74,14 @@ customElements.define('auto-complete', class extends HTMLElement {
     this._value = value;
   }
 
+  get magicKey() {
+    return this._magicKey;
+  }
+
+  set magicKey(value) {
+    this._magicKey = value;
+  }
+
   /* #endregion [Properties] */
 
 
@@ -66,16 +89,49 @@ customElements.define('auto-complete', class extends HTMLElement {
 
   /**
    * 
-   * @param {string} baseMap
+   * @param {object} Event arguments.
    * 
-   *  Event handler for button click.
-   *  Sets baseMap property and dispatches event.
+   *  Event handler for autocomplete input.
+   *  Sets value property and dispatches event.
    */
-  _on_input(value) {
-    this._value = value;
+  _on_input(e) {
+    if (!(e && e.target && e.target.value)) {
+      return;
+    }
+
+    this._value = e.target.value;
     var that = this
     function dispatch() {
       that.dispatchEvent(new CustomEvent("onInput"));
+    }
+    // Need to delay or Elm doesn't call view.
+    window.setTimeout(dispatch, 1);
+  };
+
+
+  /**
+   * 
+   * @param {object} Event arguments.
+   * 
+   *  Event handler for autocompleted event.
+   *  Sets magicKey property and dispatches event.
+   */
+  _on_autocomplete(value) {
+    this._magicKey = null;
+    for (var i = 0, len = this.data.length; i < len; i++) {
+      if (this.data[i].text === value) {
+        this._magicKey = this.data[i].magicKey;
+        break;
+      }
+    }
+
+    if (!this._magicKey) {
+      return;
+    }
+
+    var that = this
+    function dispatch() {
+      that.dispatchEvent(new CustomEvent("onAutocomplete"));
     }
     // Need to delay or Elm doesn't call view.
     window.setTimeout(dispatch, 1);
@@ -89,13 +145,14 @@ customElements.define('auto-complete', class extends HTMLElement {
   connectedCallback() {
     // Set element innerHtml
     this.innerHTML = this._html(this.label);
-    var inputNode = this.querySelector("input");
+    this._inputNode = this.querySelector("input");
     // Init autocomplete
-    this._autocomplete = M.Autocomplete.init(inputNode, {});
+    this._autocomplete = M.Autocomplete.init(this._inputNode, {
+      onAutocomplete: this._on_autocomplete.bind(this)
+    });
 
     // Set input eventhandler function
-    inputNode.addEventListener("input", this._on_input.bind(this));
-    inputNode.addEventListener("blur", this._on_focus);
+    this._inputNode.addEventListener("input", this.debounced(300, this._on_input.bind(this)), false);
   }
 
   /* #endregion [Callback] */

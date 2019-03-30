@@ -38,6 +38,17 @@ customElements.define('map-view', class extends HTMLElement {
         this._showPosition(value);
     }
 
+    set geometry(geometry) {
+        if (!geometry || !this._setExtent) {
+            return;
+        }
+
+        geometry[0].extent.spatialReference = {
+            wkid: 4326
+        };
+        this._setExtent(geometry[0].extent);
+    }
+
     /* #endregion [Properties] */
 
 

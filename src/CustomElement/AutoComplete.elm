@@ -1,10 +1,11 @@
 module CustomElement.AutoComplete exposing
     ( SuggestResult
     , autoComplete
-    , label
     , data
-    , value
+    , label
+    , onAutocomplete
     , onInput
+    , value
     )
 
 import Html exposing (Attribute, Html)
@@ -22,6 +23,7 @@ type alias SuggestResult =
     { magicKey : String
     , text : String
     }
+
 
 
 -- HTML node
@@ -68,6 +70,14 @@ onInput tagger =
                 Decode.string
 
 
+onAutocomplete : (String -> msg) -> Attribute msg
+onAutocomplete tagger =
+    on "onAutocomplete" <|
+        Decode.map tagger <|
+            Decode.at [ "target", "magicKey" ]
+                Decode.string
+
+
 
 -- Encoders
 
@@ -80,6 +90,6 @@ suggestListEncoder results =
 suggestEncode : SuggestResult -> Encode.Value
 suggestEncode result =
     Encode.object
-            [ ( "magicKey", Encode.string result.magicKey )
-            , ( "text", Encode.string result.text )
-            ]
+        [ ( "magicKey", Encode.string result.magicKey )
+        , ( "text", Encode.string result.text )
+        ]

@@ -2,10 +2,10 @@ module Main exposing (main)
 
 import Browser
 import Browser.Dom as Dom
+import CustomElement.AutoComplete as AutoComplete exposing (..)
 import CustomElement.DropdownButton as DropdownButton exposing (Item)
 import CustomElement.GeoLocation as GeoLocation exposing (Position)
 import CustomElement.MapView as MapView exposing (..)
-import CustomElement.AutoComplete as AutoComplete exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -40,6 +40,7 @@ type alias Model =
     , status : Status
     , autoCompleteLabel : String
     , value : String
+    , geometryStatus : GeometryStatus
     }
 
 
@@ -47,6 +48,12 @@ type Status
     = Failure
     | Loading
     | Success (List SuggestResult)
+
+
+type GeometryStatus
+    = FailGeom
+    | LoadingGeom
+    | SuccessGeom (List Geometry)
 
 
 init : () -> ( Model, Cmd Msg )
@@ -70,6 +77,7 @@ init () =
       , status = Loading
       , autoCompleteLabel = "Search in map"
       , value = ""
+      , geometryStatus = LoadingGeom
       }
     , Cmd.none
     )
@@ -87,6 +95,8 @@ type Msg
     | Search
     | GotResult (Result Http.Error (List SuggestResult))
     | OnInput String
+    | OnAutocomplete String
+    | GotGeometry (Result Http.Error (List Geometry))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -127,14 +137,27 @@ update msg model =
                     , Cmd.none
                     )
 
-        -- OnInput val ->
-        --     ( { model | status = Loading }
-        --     , suggest val
-        --     )
         OnInput val ->
-            ( { model | value = val }
-            , Cmd.none
+            ( { model | status = Loading }
+            , suggest val
             )
+
+        OnAutocomplete magicKey ->
+            ( { model | geometryStatus = LoadingGeom }
+            , getGeometry magicKey
+            )
+
+        GotGeometry result ->
+            case result of
+                Ok url ->
+                    ( { model | geometryStatus = SuccessGeom url }
+                    , Cmd.none
+                    )
+
+                Err _ ->
+                    ( { model | geometryStatus = FailGeom }
+                    , Cmd.none
+                    )
 
 
 positionToString : Maybe Position -> String
@@ -201,6 +224,7 @@ view model =
                 [ AutoComplete.label model.autoCompleteLabel
                 , AutoComplete.value model.value
                 , AutoComplete.onInput OnInput
+                , AutoComplete.onAutocomplete OnAutocomplete
                 , case model.status of
                     Failure ->
                         class "fail"
@@ -217,6 +241,15 @@ view model =
             [ MapView.mapView
                 [ MapView.baseMap model.baseMap
                 , MapView.position model.position
+                , case model.geometryStatus of
+                    FailGeom ->
+                        id "error"
+
+                    LoadingGeom ->
+                        id "loading"
+
+                    SuccessGeom geom ->
+                        MapView.geometry geom
                 ]
                 []
             ]
@@ -245,8 +278,16 @@ viewResponse status =
 suggest : String -> Cmd Msg
 suggest query =
     Http.get
-        { url = "http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest?text=" ++ query ++ "&f=pjson&countryCode=SVK"
+        { url = "http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest?text=" ++ query ++ "&f=json&countryCode=SVK"
         , expect = Http.expectJson GotResult suggestListDecoder
+        }
+
+
+getGeometry : String -> Cmd Msg
+getGeometry key =
+    Http.get
+        { url = "http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&magicKey=" ++ key
+        , expect = Http.expectJson GotGeometry geometryListDecoder
         }
 
 
@@ -266,7 +307,29 @@ suggestDecoder =
         (Decode.field "text" Decode.string)
 
 
+geometryListDecoder : Decoder (List Geometry)
+geometryListDecoder =
+    field "candidates" (Decode.list geometryDecoder)
 
--- suggestDecoder : Decoder String
--- suggestDecoder =
---     field "data" (field "url" string)
+
+geometryDecoder : Decoder Geometry
+geometryDecoder =
+    Decode.map2 Geometry
+        (Decode.field "location" locationDecoder)
+        (Decode.field "extent" extentDecoder)
+
+
+locationDecoder : Decoder Location
+locationDecoder =
+    Decode.map2 Location
+        (Decode.field "x" Decode.float)
+        (Decode.field "y" Decode.float)
+
+
+extentDecoder : Decoder Extent
+extentDecoder =
+    Decode.map4 Extent
+        (Decode.field "xmin" Decode.float)
+        (Decode.field "ymin" Decode.float)
+        (Decode.field "xmax" Decode.float)
+        (Decode.field "ymax" Decode.float)

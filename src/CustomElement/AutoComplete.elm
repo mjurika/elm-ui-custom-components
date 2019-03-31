@@ -19,6 +19,8 @@ import Json.Encode as Encode exposing (Value)
 -- ALIAS
 
 
+{-| Data .
+-}
 type alias SuggestResult =
     { magicKey : String
     , text : String
@@ -40,18 +42,24 @@ autoComplete =
 -- HTML attributes
 
 
+{-| Label of autocomplete input.
+-}
 label : String -> Attribute msg
 label lab =
     property "label" <|
         Encode.string lab
 
 
+{-| Autocomplete data.
+-}
 data : List SuggestResult -> Attribute msg
 data dat =
     property "data" <|
         suggestListEncoder dat
 
 
+{-| Value of autocomplete input.
+-}
 value : String -> Attribute msg
 value val =
     property "value" <|
@@ -62,6 +70,8 @@ value val =
 -- Event handlers
 
 
+{-| On autocomplete input value change.
+-}
 onInput : (String -> msg) -> Attribute msg
 onInput tagger =
     on "onInput" <|
@@ -70,6 +80,8 @@ onInput tagger =
                 Decode.string
 
 
+{-| On autocompleted.
+-}
 onAutocomplete : (String -> msg) -> Attribute msg
 onAutocomplete tagger =
     on "onAutocomplete" <|

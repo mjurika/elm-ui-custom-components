@@ -11,8 +11,6 @@ module CustomElement.MapView exposing
 
 import Html exposing (Attribute, Html)
 import Html.Attributes exposing (property)
-import Html.Events exposing (on)
-import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode exposing (Value)
 
 
@@ -62,18 +60,24 @@ mapView =
 -- HTML attributes
 
 
+{-| Current basemap Id.
+-}
 baseMap : String -> Attribute msg
 baseMap mapId =
     property "baseMap" <|
         Encode.string mapId
 
 
+{-| Current measurement type.
+-}
 measurement : String -> Attribute msg
 measurement measurementType =
     property "measurement" <|
         Encode.string measurementType
 
 
+{-| Sets and shows position on map.
+-}
 position : Maybe Position -> Attribute msg
 position value =
     property "position" <|
@@ -89,6 +93,8 @@ position value =
                     ]
 
 
+{-| Create a mapView Html element.
+-}
 geometry : List Geometry -> Attribute msg
 geometry geom =
     property "geometry" <|

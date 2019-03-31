@@ -3,8 +3,8 @@ module Main exposing (main)
 import Browser
 import Browser.Dom as Dom
 import CustomElement.AutoComplete as AutoComplete exposing (..)
-import CustomElement.DropdownButton as DropdownButton exposing (Item)
-import CustomElement.GeoLocation as GeoLocation exposing (Position)
+import CustomElement.DropdownButton as DropdownButton exposing (..)
+import CustomElement.GeoLocation as GeoLocation exposing (..)
 import CustomElement.MapView as MapView exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)

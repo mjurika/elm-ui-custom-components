@@ -38,12 +38,20 @@ geoLocation =
 -- HTML attributes
 
 
+{-| Triggers position.
+-}
 triggerPosition : Int -> Attribute msg
 triggerPosition value =
     property "triggerPosition" <|
         Encode.int value
 
 
+
+-- Event handlers
+
+
+{-| On new position.
+-}
 onPosition : (Position -> msg) -> Attribute msg
 onPosition tagger =
     on "position" <|

@@ -25,7 +25,7 @@ customElements.define('dropdown-button', class extends HTMLElement {
   /* #region [Properties] */
 
   /**
-   * Return dropdown title.
+   * Return dropdown button title.
    */
   get dropdownTitle() {
     return this._title;
@@ -33,7 +33,7 @@ customElements.define('dropdown-button', class extends HTMLElement {
 
 
   /**
-   * Sets dropdown title.
+   * Sets dropdown button title.
    */
   set dropdownTitle(value) {
     this._title = value;

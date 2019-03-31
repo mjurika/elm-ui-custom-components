@@ -38,18 +38,24 @@ dropdownButton =
 -- HTML attributes
 
 
+{-| Title of dropdown button.
+-}
 dropdownTitle : String -> Attribute msg
 dropdownTitle title =
     property "dropdownTitle" <|
         Encode.string title
 
 
+{-| Dropdown items.
+-}
 dropdownItems : List Item -> Attribute msg
 dropdownItems items =
     property "dropdownItems" <|
         encodeItemList items
 
 
+{-| Selected basemap.
+-}
 baseMap : String -> Attribute msg
 baseMap value =
     property "baseMap" <|
@@ -60,6 +66,8 @@ baseMap value =
 -- Event handlers
 
 
+{-| On dropdown button click.
+-}
 onClick : (String -> msg) -> Attribute msg
 onClick tagger =
     on "btnClicked" <|

@@ -76,7 +76,7 @@ customElements.define('map-view', class extends HTMLElement {
     /**
      * Goes to and shows geometry on map.
      */
-    set location(geometry) {
+    set geometry(geometry) {
         if (!geometry || !this._setExtent) {
             return;
         }

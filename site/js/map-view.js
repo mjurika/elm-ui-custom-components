@@ -22,10 +22,17 @@ customElements.define('map-view', class extends HTMLElement {
 
     /* #region [Properties] */
 
+    /**
+     * Return current basemap Id.
+     */
     get baseMap() {
         return this._basemap;
     }
 
+
+    /**
+     * Sets current basemap Id.
+     */
     set baseMap(value) {
         this._basemap = value;
         if (this._map) {
@@ -33,10 +40,18 @@ customElements.define('map-view', class extends HTMLElement {
         }
     }
 
+
+    /**
+     * Return current measurement type.
+     */
     get measurement() {
         return this._measurement;
     }
 
+
+    /**
+     * Sets current measurement type.
+     */
     set measurement(value) {
         this._measurement = value;
         if (!this._setActiveWidget) {
@@ -45,6 +60,10 @@ customElements.define('map-view', class extends HTMLElement {
         this._setActiveWidget(value);
     }
 
+
+    /**
+     * Sets and shows position on map.
+     */
     set position(value) {
         if (!value) {
             return;
@@ -53,7 +72,11 @@ customElements.define('map-view', class extends HTMLElement {
         this._showPosition(value);
     }
 
-    set geometry(geometry) {
+
+    /**
+     * Goes to and shows geometry on map.
+     */
+    set location(geometry) {
         if (!geometry || !this._setExtent) {
             return;
         }
@@ -69,10 +92,13 @@ customElements.define('map-view', class extends HTMLElement {
 
     /* #region [Callback] */
 
+    /**
+     * Invoked each time the custom element is appended into a document-connected element.
+     */
     connectedCallback() {
         var that = this;
 
-        // Create map
+        // Create map and define map functions
         require([
             "esri/Map",
             "esri/views/SceneView",
@@ -103,6 +129,8 @@ customElements.define('map-view', class extends HTMLElement {
                 }
             });
 
+
+            /* #region [Map functions] */
 
             /**
              * Sets the scene extent using goTo method.
@@ -214,6 +242,7 @@ customElements.define('map-view', class extends HTMLElement {
                 that._view.graphics.add(that._pointGraphic);
             };
 
+
             /**
              * Sets active widget.
              * 
@@ -252,6 +281,8 @@ customElements.define('map-view', class extends HTMLElement {
                         break;
                 }
             }
+
+            /* #endregion [Map functions] */
         });
     }
 

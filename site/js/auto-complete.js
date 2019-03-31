@@ -19,7 +19,14 @@ customElements.define('auto-complete', class extends HTMLElement {
           <label for="autocomplete-input">${label}</label>
         </div>`;
 
-    this.debounced = function (delay, fn) {
+    /**
+     * Debounce function.
+     * Used for input event handler.
+     * 
+     * @param {number} delay Delay in ms.
+     * @param {function} fn Function to debounce.
+     */
+    this._debounced = function (delay, fn) {
       let timerId;
       return function (...args) {
         if (timerId) {
@@ -38,10 +45,17 @@ customElements.define('auto-complete', class extends HTMLElement {
 
   /* #region [Properties] */
 
+  /**
+   * Return autocomplete data.
+   */
   get data() {
     return this._data;
   }
 
+
+  /**
+   * Sets and updates autocomplete data.
+   */
   set data(value) {
     this._data = value;
     if (!value || value.length < 0) {
@@ -57,26 +71,50 @@ customElements.define('auto-complete', class extends HTMLElement {
     this._autocomplete.open();
   }
 
+
+  /**
+   * Return label of autocomplete input.
+   */
   get label() {
     return this._label;
   }
 
+
+  /**
+   * Sets label of autocomplete input.
+   */
   set label(value) {
     this._label = value;
   }
 
+
+  /**
+   * Return value of autocomplete input.
+   */
   get value() {
     return this._value;
   }
 
+
+  /**
+   * Sets value of autocomplete input.
+   */
   set value(value) {
     this._value = value;
   }
 
+
+  /**
+   * Return magicKey of autocompleted item.
+   */
   get magicKey() {
     return this._magicKey;
   }
 
+
+  /**
+   * Sets magicKey of autocompleted item.
+   */
   set magicKey(value) {
     this._magicKey = value;
   }
@@ -87,11 +125,10 @@ customElements.define('auto-complete', class extends HTMLElement {
   /* #region [Event handlers] */
 
   /**
-   * 
-   * @param {object} Event arguments.
-   * 
    *  Event handler for autocomplete input.
    *  Sets value property and dispatches event.
+   * 
+   *  @param {object} Event arguments.
    */
   _on_input(e) {
     if (!(e && e.target && e.target.value)) {
@@ -109,11 +146,10 @@ customElements.define('auto-complete', class extends HTMLElement {
 
 
   /**
-   * 
-   * @param {object} Event arguments.
-   * 
    *  Event handler for autocompleted event.
    *  Sets magicKey property and dispatches event.
+   * 
+   *  @param {object} Event arguments.
    */
   _on_autocomplete(value) {
     this._magicKey = null;
@@ -141,6 +177,9 @@ customElements.define('auto-complete', class extends HTMLElement {
 
   /* #region [Callback] */
 
+  /**
+   * Invoked each time the custom element is appended into a document-connected element.
+   */
   connectedCallback() {
     // Set element innerHtml
     this.innerHTML = this._html(this.label);
@@ -151,7 +190,7 @@ customElements.define('auto-complete', class extends HTMLElement {
     });
 
     // Set input eventhandler function
-    this._inputNode.addEventListener("input", this.debounced(300, this._on_input.bind(this)), false);
+    this._inputNode.addEventListener("input", this._debounced(300, this._on_input.bind(this)), false);
   }
 
   /* #endregion [Callback] */

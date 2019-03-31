@@ -24,14 +24,25 @@ customElements.define('dropdown-button', class extends HTMLElement {
 
   /* #region [Properties] */
 
+  /**
+   * Return dropdown title.
+   */
   get dropdownTitle() {
     return this._title;
   }
 
+
+  /**
+   * Sets dropdown title.
+   */
   set dropdownTitle(value) {
     this._title = value;
   }
 
+
+  /**
+   * Return dropdown items.
+   */
   get dropdownItems() {
     let itemsHtml = "";
     this._dropdownItems.forEach(function (item) {
@@ -40,14 +51,26 @@ customElements.define('dropdown-button', class extends HTMLElement {
     return itemsHtml;
   }
 
+
+  /**
+   * Sets dropdown items.
+   */
   set dropdownItems(value) {
     this._dropdownItems = value;
   }
 
+
+  /**
+   * Return selected basemap Id.
+   */
   get baseMap() {
     return this._baseMap;
   }
 
+
+  /**
+   * Sets selected basemap Id.
+   */
   set baseMap(value) {
     this._baseMap = value;
   }
@@ -58,11 +81,10 @@ customElements.define('dropdown-button', class extends HTMLElement {
   /* #region [Event handlers] */
 
   /**
-   * 
-   * @param {string} baseMap
-   * 
    *  Event handler for button click.
    *  Sets baseMap property and dispatches event.
+   * 
+   *  @param {string} baseMap
    */
   _on_click(baseMap) {
     this._baseMap = baseMap;
@@ -79,6 +101,9 @@ customElements.define('dropdown-button', class extends HTMLElement {
 
   /* #region [Callback] */
 
+  /**
+   * Invoked each time the custom element is appended into a document-connected element.
+   */
   connectedCallback() {
     // Set element innerHtml
     this.innerHTML = this._wrapperHtml(this.dropdownTitle, this.dropdownItems);

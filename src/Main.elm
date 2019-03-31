@@ -11,6 +11,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder, field, string)
+import Round
 
 
 
@@ -179,13 +180,13 @@ positionToString : Maybe Position -> String
 positionToString position =
     case position of
         Nothing ->
-            "Unkown"
+            "Lat: -, Long: -, Acc: -"
 
         Just p ->
             "Lat: "
-                ++ String.fromFloat p.latitude
+                ++ Round.round 4 p.latitude
                 ++ ", Long: "
-                ++ String.fromFloat p.longitude
+                ++ Round.round 4 p.longitude
                 ++ ", Acc: "
                 ++ String.fromFloat p.accuracy
 
@@ -286,6 +287,8 @@ view model =
                         ]
                     ]
                 ]
+            , div [ class "logo-wrapper" ]
+                [ img [ src "../images/elm-map-logo.png", width 150, height 60 ] [] ]
             ]
         , div [ class "map-container" ]
             [ MapView.mapView

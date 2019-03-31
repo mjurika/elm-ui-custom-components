@@ -288,7 +288,7 @@ view model =
                     ]
                 ]
             , div [ class "logo-wrapper" ]
-                [ img [ src "../images/elm-map-logo.png", width 150, height 60 ] [] ]
+                [ img [ src "./images/elm-map-logo.png", width 150, height 60 ] [] ]
             ]
         , div [ class "map-container" ]
             [ MapView.mapView

@@ -9,6 +9,8 @@ customElements.define('map-view', class extends HTMLElement {
         this._view = null;
         this._basemap = null;
         this._measurement = null;
+        this._position = null;
+        this._geometry = null;
         this._showPosition = null;
 
         this._outlineGraphic = null;
@@ -62,14 +64,31 @@ customElements.define('map-view', class extends HTMLElement {
 
 
     /**
+     * Retun position.
+     */
+    get position() {
+        return this._position;
+    }
+
+
+    /**
      * Sets and shows position on map.
      */
     set position(value) {
-        if (!value) {
+        if (!value || !this._showPosition || JSON.stringify(this._position) === JSON.stringify(value)) {
             return;
         }
 
+        this._position = value;
         this._showPosition(value);
+    }
+
+
+    /**
+     * Retun geometry.
+     */
+    get geometry() {
+        return this._geometry;
     }
 
 
@@ -77,12 +96,17 @@ customElements.define('map-view', class extends HTMLElement {
      * Goes to and shows geometry on map.
      */
     set geometry(geometry) {
-        if (!geometry || !this._setExtent) {
+        if (!geometry || !this._setExtent || JSON.stringify(this._geometry) === JSON.stringify(geometry)) {
             return;
         }
         geometry[0].extent.spatialReference = {
             wkid: 4326
         };
+        if (JSON.stringify(this._geometry) === JSON.stringify(geometry)) {
+            return;
+        }
+
+        this._geometry = geometry;
         this._setExtent(geometry[0].extent);
         this._addPointGraphic(geometry[0].location.x, geometry[0].location.y);
     }
